@@ -16,8 +16,8 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json");
         response.getWriter().write("""
                 {
-                    'status':403,
-                    'message':'Access Denied'
+                    "status":403,
+                    "message":"Access Denied"
                 }
                 """);
     }
