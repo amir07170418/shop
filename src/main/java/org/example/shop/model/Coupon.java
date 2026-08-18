@@ -2,7 +2,6 @@ package org.example.shop.model;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Set;
@@ -17,7 +16,7 @@ public class Coupon {
     private Integer discountPercent;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private Long miniumOrderAmount;
+    private Long minimumOrderAmount;
     private Long maximumDiscount;
     private Integer usageLimit;
     private Integer usageCount;
@@ -32,7 +31,7 @@ public class Coupon {
         this.discountPercent = discountPercent;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.miniumOrderAmount = miniumOrderAmount;
+        this.minimumOrderAmount = miniumOrderAmount;
         this.maximumDiscount = maximumDiscount;
         this.usageLimit = usageLimit;
         this.usageCount = usageCount;
@@ -80,12 +79,12 @@ public class Coupon {
         this.endDate = endDate;
     }
 
-    public Long getMiniumOrderAmount() {
-        return miniumOrderAmount;
+    public Long getMinimumOrderAmount() {
+        return minimumOrderAmount;
     }
 
-    public void setMiniumOrderAmount(Long miniumOrderAmount) {
-        this.miniumOrderAmount = miniumOrderAmount;
+    public void setMinimumOrderAmount(Long miniumOrderAmount) {
+        this.minimumOrderAmount = miniumOrderAmount;
     }
 
     public Long getMaximumDiscount() {
@@ -148,7 +147,7 @@ public class Coupon {
                 ", discountPercent=" + discountPercent +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
-                ", miniumOrderAmount=" + miniumOrderAmount +
+                ", miniumOrderAmount=" + minimumOrderAmount +
                 ", maximumDiscount=" + maximumDiscount +
                 ", usageLimit=" + usageLimit +
                 ", usageCount=" + usageCount +
