@@ -12,8 +12,10 @@ public interface CustomerMapper {
     CustomerResponse toCustomerResponse(Customer customer);
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
+    @Mapping(target = "password", ignore = true)
     Customer  toCustomer(CustomerRequest customerRequest);
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
+    @Mapping(target = "password", ignore = true)
     void updateCustomer(CustomerRequest customerRequest, @MappingTarget Customer customer);
 }
