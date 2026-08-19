@@ -25,7 +25,7 @@ public class CategoryService implements  ShopService<CategoryRequest, CategoryRe
     @Override
     public CategoryResponse save(CategoryRequest categoryRequest) {
         if (categoryRepository.existsByName(categoryRequest.getName())) {
-            throw new ShopException("Category Not Found", HttpStatus.NOT_FOUND);
+            throw new ShopException("Category With this Name Already Exist", HttpStatus.BAD_REQUEST);
         }
         Category  category = categoryMapper.toCategory(categoryRequest);
         categoryRepository.save(category);
@@ -35,10 +35,11 @@ public class CategoryService implements  ShopService<CategoryRequest, CategoryRe
     @Transactional
     @Override
     public CategoryResponse update(Long id, CategoryRequest categoryRequest) {
-        Category category = categoryMapper.toCategory(categoryRequest);
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new ShopException("Category Not Found"
+                , HttpStatus.NOT_FOUND));
         if (!category.getName().equals(categoryRequest.getName()) &&
                 categoryRepository.existsByName(categoryRequest.getName())) {
-            throw new ShopException("Category Not Found", HttpStatus.NOT_FOUND);
+            throw new ShopException("Category With this Name Already Exist", HttpStatus.BAD_REQUEST);
         }
         category.setName(categoryRequest.getName());
         categoryRepository.save(category);
@@ -56,6 +57,9 @@ public class CategoryService implements  ShopService<CategoryRequest, CategoryRe
     public void deleteById(Long id) {
         Category category = categoryRepository.findById(id).orElseThrow(
                 ()-> new ShopException("Category Not Found",HttpStatus.NOT_FOUND));
+        if (categoryRepository.existsProductByCategoryId(category.getId())) {
+            throw new ShopException("Product with this category Exist", HttpStatus.BAD_REQUEST);
+        }
         categoryRepository.delete(category);
     }
 
