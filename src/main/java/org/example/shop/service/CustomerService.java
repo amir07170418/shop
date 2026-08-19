@@ -56,6 +56,7 @@ public class CustomerService implements ShopService<CustomerRequest, CustomerRes
     public CustomerResponse editProfile(CustomerRequest customerRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer=customerRepository.findByEmail(email).orElseThrow(()->new ShopException("Customer Not Found", HttpStatus.NOT_FOUND));
+        customerCheck(customerRequest, customer);
         customerMapper.updateCustomer(customerRequest, customer);
         customer.setPassword(passwordEncoder.encode(customerRequest.getPassword()));
         customerRepository.save(customer);
