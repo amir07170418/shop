@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 public class OrderRequest {
     @NotNull
     private Long customerId;
-
+    private String code;
     public OrderRequest(Long customerId) {
         this.customerId = customerId;
     }
@@ -17,6 +17,14 @@ public class OrderRequest {
 
     public void setCustomerId(Long customerId) {
         this.customerId = customerId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @Override

@@ -55,6 +55,12 @@ public class CouponService {
         couponRepository.save(coupon);
         return couponMapper.toCouponResponse(coupon);
     }
+    public void addUsage(Long id) {
+        Coupon coupon = couponRepository.findById(id).orElseThrow(()->
+                new ShopException("coupon not found", HttpStatus.NOT_FOUND));
+        coupon.setUsageCount(coupon.getUsageCount() + 1);
+        couponRepository.save(coupon);
+    }
 
 
     public CouponResponse findById(Long id) {

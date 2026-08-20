@@ -6,13 +6,10 @@ public class CartItemRequest {
     @NotNull
     private Integer quantity;
     @NotNull
-    private Long cartId;
-    @NotNull
     private  Long productId;
 
-    public CartItemRequest(Integer quantity, Long cartId, Long productId) {
+    public CartItemRequest(Integer quantity, Long productId) {
         this.quantity = quantity;
-        this.cartId = cartId;
         this.productId = productId;
     }
 
@@ -26,13 +23,6 @@ public class CartItemRequest {
         this.quantity = quantity;
     }
 
-    public Long getCartId() {
-        return cartId;
-    }
-
-    public void setCartId(Long cartId) {
-        this.cartId = cartId;
-    }
 
     public Long getProductId() {
         return productId;
@@ -46,7 +36,6 @@ public class CartItemRequest {
     public String toString() {
         return "CartItemRequest{" +
                 "quantity=" + quantity +
-                ", cartId=" + cartId +
                 ", productId=" + productId +
                 '}';
     }

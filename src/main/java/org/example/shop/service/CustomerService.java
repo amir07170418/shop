@@ -5,8 +5,10 @@ import org.example.shop.dto.CustomerRequest;
 import org.example.shop.dto.CustomerResponse;
 import org.example.shop.exception.ShopException;
 import org.example.shop.mapper.CustomerMapper;
+import org.example.shop.model.Cart;
 import org.example.shop.model.Customer;
 import org.example.shop.model.Role;
+import org.example.shop.repository.CartRepository;
 import org.example.shop.repository.CustomerRepository;
 import org.example.shop.security.JwtService;
 import org.springframework.data.domain.Page;
@@ -21,12 +23,14 @@ public class CustomerService implements ShopService<CustomerRequest, CustomerRes
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
     private final PasswordEncoder passwordEncoder;
+    private final CartRepository cartRepository;
 
     public CustomerService(CustomerRepository customerRepository, CustomerMapper customerMapper
-            , PasswordEncoder passwordEncoder) {
+            , PasswordEncoder passwordEncoder, CartRepository cartRepository) {
         this.customerRepository = customerRepository;
         this.customerMapper = customerMapper;
         this.passwordEncoder = passwordEncoder;
+        this.cartRepository = cartRepository;
     }
     @Transactional
     @Override
@@ -38,6 +42,10 @@ public class CustomerService implements ShopService<CustomerRequest, CustomerRes
         customer.setRole(Role.CUSTOMER);
         customer.setPassword(passwordEncoder.encode(customerRequest.getPassword()));
         customerRepository.save(customer);
+        Cart cart = new Cart();
+        cart.setCustomer(customer);
+        cartRepository.save(cart);
+        customer.setCart(cart);
         return customerMapper.toCustomerResponse(customer);
     }
 
