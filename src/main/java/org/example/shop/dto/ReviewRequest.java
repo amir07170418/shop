@@ -11,14 +11,11 @@ public class ReviewRequest {
     private String description;
     @NotNull
     private Long productId;
-    @NotNull
-    private Long customerId;
 
-    public ReviewRequest(String title, String description, Long productId, Long customerId) {
+    public ReviewRequest(String title, String description, Long productId) {
         this.title = title;
         this.description = description;
         this.productId = productId;
-        this.customerId = customerId;
     }
     public ReviewRequest() {}
 
@@ -46,13 +43,7 @@ public class ReviewRequest {
         this.productId = productId;
     }
 
-    public Long getCustomerId() {
-        return customerId;
-    }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
-    }
 
     @Override
     public String toString() {
@@ -60,7 +51,6 @@ public class ReviewRequest {
                 "title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", productId=" + productId +
-                ", customerId=" + customerId +
                 '}';
     }
 }
