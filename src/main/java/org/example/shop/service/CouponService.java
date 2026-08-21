@@ -61,8 +61,6 @@ public class CouponService {
         coupon.setUsageCount(coupon.getUsageCount() + 1);
         couponRepository.save(coupon);
     }
-
-
     public CouponResponse findById(Long id) {
         Coupon coupon = couponRepository.findById(id).orElseThrow
                 (()-> new ShopException("coupon not found", HttpStatus.NOT_FOUND));

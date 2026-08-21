@@ -3,8 +3,10 @@ package org.example.shop.service;
 import jakarta.transaction.Transactional;
 import org.example.shop.dto.OrderRequest;
 import org.example.shop.dto.OrderResponse;
+import org.example.shop.dto.PaymentResponse;
 import org.example.shop.exception.ShopException;
 import org.example.shop.mapper.OrderMapper;
+import org.example.shop.mapper.PaymentMapper;
 import org.example.shop.model.*;
 import org.example.shop.repository.CouponRepository;
 import org.example.shop.repository.CustomerRepository;
@@ -27,8 +29,9 @@ public class OrderService {
     private final CouponRepository couponRepository;
     private final CartService cartService;
     private final CouponService couponService;
+    private final PaymentMapper paymentMapper;
 
-    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, OrderItemRepository orderItemRepository, OrderMapper orderMapper, CouponRepository couponRepository, CartService cartService, CouponService couponService) {
+    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, OrderItemRepository orderItemRepository, OrderMapper orderMapper, CouponRepository couponRepository, CartService cartService, CouponService couponService, PaymentMapper paymentMapper) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.orderItemRepository = orderItemRepository;
@@ -36,6 +39,7 @@ public class OrderService {
         this.couponRepository = couponRepository;
         this.cartService = cartService;
         this.couponService = couponService;
+        this.paymentMapper = paymentMapper;
     }
 
     @Transactional
@@ -77,7 +81,71 @@ public class OrderService {
         cartService.clearCart();
         return orderMapper.toOrderResponse(order);
     }
-
+    @Transactional
+    public PaymentResponse goPayment(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new ShopException("order not found", HttpStatus.NOT_FOUND));
+        if (order.getPayment() != null) {
+            throw new ShopException("payment already exists", HttpStatus.BAD_REQUEST);
+        }
+        Payment payment = new Payment();
+        payment.setOrder(order);
+        payment.setAmount(order.getFinalPrice());
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setTransactionId(order.getId().toString()+order.getCustomer().getId());
+        payment.setStatus(PaymentStatus.PENDING);
+        order.setPayment(payment);
+        orderRepository.save(order);
+        return  paymentMapper.toPaymentResponse(payment);
+    }
+    @Transactional
+    public PaymentResponse pay(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                ()-> new ShopException("order not found", HttpStatus.NOT_FOUND));
+        checkUser(order);
+        Payment payment = order.getPayment();
+        if (payment == null) {
+            throw new ShopException("payment not found", HttpStatus.NOT_FOUND);
+        }
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new ShopException("payment cannot be processed", HttpStatus.BAD_REQUEST);
+        }
+        payment.setStatus(PaymentStatus.SUCCESS);
+        order.setPayment(payment);
+        orderRepository.save(order);
+        return  paymentMapper.toPaymentResponse(payment);
+    }
+    @Transactional
+    public PaymentResponse cancelPayment(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new ShopException("order not found", HttpStatus.NOT_FOUND));
+        checkUser(order);
+        Payment payment = order.getPayment();
+        if (payment == null) {
+            throw new ShopException("payment not found", HttpStatus.NOT_FOUND);
+        }
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new ShopException("payment cannot be canceled", HttpStatus.BAD_REQUEST);
+        }
+        payment.setStatus(PaymentStatus.FAILED);
+        order.setPayment(payment);
+        orderRepository.save(order);
+        return  paymentMapper.toPaymentResponse(payment);
+    }
+    public void deleteOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow
+                (()-> new ShopException("order not found", HttpStatus.NOT_FOUND));
+        checkUser(order);
+        orderRepository.delete(order);
+    }
+    private void checkUser(Order order){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = customerRepository.findByEmail(email).orElseThrow(
+                ()-> new ShopException("customer not found", HttpStatus.NOT_FOUND));
+        if (!order.getCustomer().getId().equals(customer.getId())) {
+            throw new ShopException("Access denied", HttpStatus.FORBIDDEN);
+        }
+    }
     private OrderItem createOrderItem(CartItem cartItem) {
         Product product = cartItem.getProduct();
         OrderItem orderItem = new OrderItem();
@@ -91,6 +159,7 @@ public class OrderService {
         orderItem.setTotalPrice(product.getPrice() * cartItem.getQuantity());
         return orderItem;
     }
+
 
     private Long calculateFinalPrice(Order order) {
         long finalPrice = 0;

@@ -73,6 +73,17 @@ public class CartItemService {
         }
         cartItemRepository.delete(cartItem);
     }
+    public CartItemResponse getById(Long id) {
+        CartItem cartItem = cartItemRepository.findById(id).orElseThrow(()->
+                new ShopException("cart item not found", HttpStatus.NOT_FOUND));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Customer customer = customerRepository.findByEmail(email).orElseThrow
+                (() -> new ShopException("customer not found", HttpStatus.NOT_FOUND));
+        if (!customer.getCart().getId().equals(cartItem.getCart().getId())) {
+            throw  new ShopException("cart item is not yours", HttpStatus.BAD_REQUEST);
+        }
+        return cartItemMapper.toCartItemResponse(cartItem);
+    }
     public List<CartItemResponse> getCartItems(){
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Customer customer = customerRepository.findByEmail(email).orElseThrow(
